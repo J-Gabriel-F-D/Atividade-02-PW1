@@ -27,6 +27,10 @@ app.use(express.json());
 app.post("/users", (req, res) => {
   const { name, username } = req.body;
 
+  const userExist = users.some((user) => user.username === username);
+  if (userExist) {
+    return res.status(400).json({ message: "Error: user exists" });
+  }
   const newUser: User = {
     name,
     username,
