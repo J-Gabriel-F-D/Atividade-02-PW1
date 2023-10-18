@@ -25,17 +25,19 @@ const seachUser = (username: string) => {
   }
 };
 
+// Midleware
 function checkExistsUserAccount(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
   const { username } = req.headers;
-  const usernameExist = seachUser(String(username));
+  const user = seachUser(String(username));
 
-  if (!usernameExist) {
+  if (!user) {
     return res.status(400).json({ message: "User not found" });
   }
+  req.user = user;
   next();
 }
 
@@ -72,9 +74,24 @@ app.get(
   }
 );
 
-// app.post("/technologies", (req: Request, res: Response) => {
-//   return;
-// });
+app.post(
+  "/technologies",
+  checkExistsUserAccount,
+  (req: Request, res: Response) => {
+    const { user } = req;
+    const { title, deadline } = req.body;
+
+    const technologie: Technologie = {
+      id: uuidv4(),
+      created_at: new Date(),
+      studied: false,
+      deadline: new Date(deadline),
+      title: title,
+    };
+    user.technologies.push(technologie);
+    return res.status(201).json(technologie);
+  }
+);
 
 // app.put("/technologies/:id", (req: Request, res: Response) => {
 //   return;
