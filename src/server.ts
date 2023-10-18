@@ -1,5 +1,7 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import { v4 as uuidv4 } from "uuid";
+
+const users = [] as User[];
 
 export type Technologie = {
   id: string;
@@ -16,7 +18,26 @@ export type User = {
   technologies: Technologie[];
 };
 
-const users = [] as User[];
+const seachUser = (username: string) => {
+  const user = users.find((user) => user.username === username);
+  if (user) {
+    return user;
+  }
+};
+
+function checkExistsUserAccount(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { username } = req.headers;
+  const usernameExist = seachUser(String(username));
+
+  if (!usernameExist) {
+    return res.status(400).json({ message: "User not found" });
+  }
+  next();
+}
 
 const app = express();
 
@@ -24,7 +45,7 @@ const PORT = 3000;
 
 app.use(express.json());
 
-app.post("/users", (req, res) => {
+app.post("/users", (req: Request, res: Response) => {
   const { name, username } = req.body;
 
   const userExist = users.some((user) => user.username === username);
@@ -41,9 +62,15 @@ app.post("/users", (req, res) => {
   return res.status(201).json(newUser);
 });
 
-// app.get("/technologies", (req: Request, res: Response) => {
-//   return;
-// });
+app.get(
+  "/technologies",
+  checkExistsUserAccount,
+  (req: Request, res: Response) => {
+    const { username } = req.headers;
+    const user = users.find((user) => user.username === username);
+    return res.status(200).json(user?.technologies);
+  }
+);
 
 // app.post("/technologies", (req: Request, res: Response) => {
 //   return;
