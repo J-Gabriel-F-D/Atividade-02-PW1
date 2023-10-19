@@ -18,6 +18,46 @@ export type User = {
   technologies: Technologie[];
 };
 
+// Functions
+const technologieExist = (id: string, username: string) => {
+  const technologie = seachTechnologie(id, username);
+  if (!technologie) {
+    return false;
+  }
+  return true;
+};
+
+const seachAllTechnologie = (usename: string) => {
+  return seachUser(usename)?.technologies;
+};
+const seachTechnologie = (id: string, username: string) => {
+  const user = seachUser(username as string);
+  const technologie = users.find(() => {
+    user?.technologies.find((tech: Technologie) => tech.id === id);
+  });
+  if (!technologie) {
+    return false;
+  }
+  return technologie as unknown as Technologie;
+};
+const updateTechnologie = (
+  id: string,
+  username: string,
+  title: string,
+  deadline: Date
+) => {
+  const user = seachUser(username as string);
+  if (!technologieExist(id, username)) {
+    return false;
+  }
+  user?.technologies.map((tech) => {
+    if (tech.id === id) {
+      tech.title = title;
+      tech.deadline = deadline;
+    }
+  });
+  return true;
+};
 const seachUser = (username: string) => {
   const user = users.find((user) => user.username === username);
   if (user) {
@@ -69,8 +109,7 @@ app.get(
   checkExistsUserAccount,
   (req: Request, res: Response) => {
     const { username } = req.headers;
-    const user = users.find((user) => user.username === username);
-    return res.status(200).json(user?.technologies);
+    return res.status(200).json(seachAllTechnologie(username as string));
   }
 );
 
@@ -93,16 +132,66 @@ app.post(
   }
 );
 
-// app.put("/technologies/:id", (req: Request, res: Response) => {
-//   return;
-// });
+app.put(
+  "/technologies/:id",
+  checkExistsUserAccount,
+  (req: Request, res: Response) => {
+    const { username } = req.headers;
+    const { id } = req.params;
+    const { title, deadline } = req.body;
+    if (!title && !deadline) {
+      return res
+        .status(400)
+        .json({ message: "title or deadline are required" });
+    }
+    const updateTech = updateTechnologie(
+      id,
+      username as string,
+      title,
+      deadline
+    );
+    if (!updateTech) {
+      return res.status(404).json({ message: "Technologie not found" });
+    }
 
-// app.patch("/technologies/:id/studied", (req: Request, res: Response) => {
-//   return;
-// });
+    return res.status(204).send();
+  }
+);
 
-// app.delete("/technologies/:id", (req: Request, res: Response) => {
-//   return;
-// });
+app.patch(
+  "/technologies/:id/studied",
+  checkExistsUserAccount,
+  (req: Request, res: Response) => {
+    const { username } = req.headers;
+    const { id } = req.params;
+    const user = seachUser(username as string);
+    if (!technologieExist) {
+      return res.status(404).json({ message: "Bad Request" });
+    }
+    user?.technologies.map((tech: Technologie) => {
+      if (tech.id === id) {
+        tech.studied = true;
+      }
+    });
+    return res.status(204).send();
+  }
+);
+
+app.delete(
+  "/technologies/:id",
+  checkExistsUserAccount,
+  (req: Request, res: Response) => {
+    const { username } = req.headers;
+    const { id } = req.params;
+    const user = seachUser(username as string);
+    if (!technologieExist(id, username as string)) {
+      return res.status(404).json({ message: "Bad Request" });
+    }
+    const technologie = seachTechnologie(id, username as string);
+    const index = user?.technologies.indexOf(technologie as Technologie);
+    user?.technologies.splice(index!, 1);
+    return res.status(204).send();
+  }
+);
 
 app.listen(PORT, () => console.log(`Server is Running on port: ${PORT}`));
