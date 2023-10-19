@@ -31,14 +31,12 @@ const seachAllTechnologie = (usename: string) => {
   return seachUser(usename)?.technologies;
 };
 const seachTechnologie = (id: string, username: string) => {
-  const user = seachUser(username as string);
-  const technologie = users.find(() => {
-    user?.technologies.find((tech: Technologie) => tech.id === id);
-  });
+  const technologies = seachUser(username as string)?.technologies;
+  const technologie = technologies?.find((tech) => tech.id === id);
   if (!technologie) {
     return false;
   }
-  return technologie as unknown as Technologie;
+  return technologie;
 };
 const updateTechnologie = (
   id: string,
@@ -148,13 +146,13 @@ app.put(
       id,
       username as string,
       title,
-      deadline
+      new Date(deadline)
     );
     if (!updateTech) {
       return res.status(404).json({ message: "Technologie not found" });
     }
 
-    return res.status(204).send();
+    return res.status(204).send(console.log("Sucesso"));
   }
 );
 
@@ -165,15 +163,15 @@ app.patch(
     const { username } = req.headers;
     const { id } = req.params;
     const user = seachUser(username as string);
-    if (!technologieExist) {
-      return res.status(404).json({ message: "Bad Request" });
+    if (!technologieExist(id, username as string)) {
+      return res.status(404).json({ message: "Technologie not found" });
     }
-    user?.technologies.map((tech: Technologie) => {
+    const alterTech = user?.technologies.map((tech: Technologie) => {
       if (tech.id === id) {
         tech.studied = true;
       }
     });
-    return res.status(204).send();
+    return res.status(204).json(alterTech);
   }
 );
 
@@ -185,7 +183,7 @@ app.delete(
     const { id } = req.params;
     const user = seachUser(username as string);
     if (!technologieExist(id, username as string)) {
-      return res.status(404).json({ message: "Bad Request" });
+      return res.status(404).json({ message: "Technologie not found" });
     }
     const technologie = seachTechnologie(id, username as string);
     const index = user?.technologies.indexOf(technologie as Technologie);
