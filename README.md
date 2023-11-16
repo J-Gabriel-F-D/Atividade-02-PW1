@@ -1,6 +1,6 @@
-# README - API TypeScript Express
+# README - API TypeScript Express with Prisma and SQLite
 
-Este README fornece uma visão geral da API TypeScript Express que gerencia contas de usuários e suas tecnologias associadas. A API permite aos usuários criar contas, adicionar, atualizar, marcar como estudadas e excluir tecnologias, bem como recuperar uma lista de tecnologias associadas a um usuário específico.
+Este README fornece uma visão geral da API TypeScript Express que gerencia contas de usuários e suas tecnologias associadas, agora utilizando Prisma como ORM e SQLite como banco de dados. A API permite aos usuários criar contas, adicionar, atualizar, marcar como estudadas e excluir tecnologias, bem como recuperar uma lista de tecnologias associadas a um usuário específico.
 
 ## Sumário
 
@@ -13,7 +13,7 @@ Este README fornece uma visão geral da API TypeScript Express que gerencia cont
 
 ## Pré-requisitos
 
-Antes de executar a API TypeScript Express, você deve ter o seguinte software e ferramentas instalados:
+Antes de executar a API TypeScript Express com Prisma e SQLite, certifique-se de ter o seguinte software e ferramentas instalados:
 
 - Node.js: Você pode baixar e instalar o Node.js em [nodejs.org](https://nodejs.org/).
 
@@ -37,7 +37,13 @@ Antes de executar a API TypeScript Express, você deve ter o seguinte software e
    npm install
    ```
 
-4. Inicie o servidor:
+4. Configure o banco de dados com Prisma:
+
+   ```bash
+   npx prisma migrate dev
+   ```
+
+5. Inicie o servidor:
 
    ```bash
    npm start
