@@ -8,6 +8,7 @@ import {
   updateTechnology,
   creatNewTechnology,
   deleteTechnology,
+  updateSatusTech,
 } from "../controllers/technologyController";
 import { Technology } from "../model/technology";
 import { seachUser } from "../controllers/userController";
@@ -41,14 +42,7 @@ router.post(
         res.status(400).json({ erro: "Erro ao criar uma nova technologia" });
       }
 
-      res.status(201).json({
-        id: (await newTechnology).id,
-        title: (await newTechnology).title,
-        studied: (await newTechnology).studied,
-        deadline: (await newTechnology).deadline,
-        created_at: (await newTechnology).created_at,
-        userId: (await newTechnology).userId,
-      });
+      res.status(201).json(await newTechnology);
     } catch (error) {
       console.log("Erro ao criar technologia: ", error);
       throw error;
@@ -78,7 +72,7 @@ router.put(
         return res.status(404).json({ erro: "Technologie not found" });
       }
 
-      return res.status(204).send(console.log("Sucesso"));
+      return res.status(204).json(await updateTech);
     } catch (error) {
       return res.status(500).json({ erro: "Erro interno do servidor" });
     }
@@ -94,16 +88,10 @@ router.patch(
     const { id } = req.params;
 
     try {
-      const user = await seachUser(username as string);
-
       if (!technologyExist(id, username as string)) {
         return res.status(404).json({ erro: "Technologie not found" });
       }
-      user?.technologies.map((tech: Technology) => {
-        if (tech.id === id) {
-          tech.studied = true;
-        }
-      });
+      await updateSatusTech(id, username as string);
       return res.status(204).send();
     } catch (error) {
       return res.status(500).json({ erro: "Erro interno do servidor" });

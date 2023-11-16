@@ -49,11 +49,9 @@ export const updateTechnology = async (
   try {
     const user = await seachUser(username as string);
     if (!(await technologyExist(id, username))) {
-      return false;
+      return console.log("Erro ao atualizar technologia");
     }
-    const technology = await seachTechnology(id, username as string);
-
-    const updatedTech = await prisma.technologies.update({
+    const newTech = await prisma.technologies.update({
       where: {
         id,
         userId: user?.id,
@@ -63,13 +61,34 @@ export const updateTechnology = async (
         deadline: new Date(deadline),
       },
     });
-    return true;
+    return newTech;
   } catch (error) {
     console.log("Erro ao atualizar a technologia: ", error);
     throw error;
   }
 };
 
+export const updateSatusTech = async (id: string, username: string) => {
+  try {
+    const user = await seachUser(username);
+    if (!(await technologyExist(id, username))) {
+      return false;
+    }
+    await prisma.technologies.update({
+      where: {
+        id,
+        userId: user?.id,
+      },
+      data: {
+        studied: true,
+      },
+    });
+    return true;
+  } catch (error) {
+    console.log("Erro ao atualizar o status da technologia:", error);
+    throw error;
+  }
+};
 export const creatNewTechnology = async (
   username: string,
   title: string,
