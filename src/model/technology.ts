@@ -1,4 +1,4 @@
-export type Technologie = {
+export type Technology = {
   id: string;
   title: string;
   studied: boolean;

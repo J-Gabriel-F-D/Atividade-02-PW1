@@ -1,12 +1,11 @@
 import express from "express";
-import { User } from "./model/user";
-import { technologieController } from "./route/technologieRoute";
+import { technologieController } from "./route/technologyRoute";
 import { userRoute } from "./route/userRoute";
-export const users = [] as User[];
+require("dotenv").config;
 
 const app = express();
 
-const PORT = 3000;
+const PORT = process.env.API_PORT;
 
 app.use(express.json());
 
